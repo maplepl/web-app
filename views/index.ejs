@@ -1,0 +1,28 @@
+<%- include('layout') %>
+<h1>Items</h1>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% items.forEach(item => { %>
+        <tr>
+            <td><%= item.id %></td>
+            <td><%= item.name %></td>
+            <td><%= item.description %></td>
+            <td>
+                <a href="/edit/<%= item.id %>">Edit</a>
+                <form method="POST" action="/delete/<%= item.id %>" style="display:inline;">
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+        <% }) %>
+    </tbody>
+</table>
+<a href="/add">Add Item</a>

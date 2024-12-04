@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Items CRUD</title>
+</head>
+<body>
+    <h1>Item List</h1>
+
+    <!-- Display Items -->
+    <ul id="itemList"></ul>
+
+    <!-- Add Item Form -->
+    <h2>Add Item</h2>
+    <form id="addItemForm">
+        <input type="text" id="name" placeholder="Item Name" required>
+        <textarea id="description" placeholder="Item Description"></textarea>
+        <button type="submit">Add Item</button>
+    </form>
+
+    <script>
+        // Fetch and display items from the database
+        async function fetchItems() {
+            const response = await fetch('/items');
+            const items = await response.json();
+            const list = document.getElementById('itemList');
+            list.innerHTML = '';
+            items.forEach(item => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${item.name} - ${item.description}`;
+                list.appendChild(listItem);
+            });
+        }
+
+        // Add item to the database
+        document.getElementById('addItemForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const description = document.getElementById('description').value;
+
+            await fetch('/items', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, description })
+            });
+
+            // Refresh the item list
+            fetchItems();
+        });
+
+        // Initial fetch of items
+        fetchItems();
+    </script>
+</body>
+</html>

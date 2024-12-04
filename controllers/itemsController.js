@@ -1,51 +1,58 @@
-const db = require('../models/db');
+// controllers/itemController.js
+
+const db = require('../models/itemModel');
 
 // Get all items
-exports.getAllItems = (req, res) => {
-    db.all('SELECT * FROM items', [], (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.render('index', { items: rows });
+const getAllItems = (req, res) => {
+    db.getItems((err, rows) => {
+        if (err) {
+            res.status(500).json({ message: 'Error fetching items' });
+        } else {
+            res.json(rows);
+        }
     });
 };
 
-// Add new item
-exports.addItem = (req, res) => {
+// Create a new item
+const createItem = (req, res) => {
     const { name, description } = req.body;
-    if (!name) return res.status(400).send('Name is required');
-    const sql = 'INSERT INTO items (name, description) VALUES (?, ?)';
-    db.run(sql, [name, description], function(err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.redirect('/');
+    db.addItem(name, description, (err) => {
+        if (err) {
+            res.status(500).json({ message: 'Error adding item' });
+        } else {
+            res.status(201).json({ message: 'Item added' });
+        }
     });
 };
 
-// Update item
-exports.updateItem = (req, res) => {
-    const { name, description } = req.body;
+// Update an existing item
+const updateItem = (req, res) => {
     const { id } = req.params;
-    const sql = 'UPDATE items SET name = ?, description = ? WHERE id = ?';
-    db.run(sql, [name, description, id], function(err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.redirect('/');
+    const { name, description } = req.body;
+    db.updateItem(id, name, description, (err) => {
+        if (err) {
+            res.status(500).json({ message: 'Error updating item' });
+        } else {
+            res.json({ message: 'Item updated' });
+        }
     });
 };
 
-// Partially update item
-exports.partialUpdateItem = (req, res) => {
-    const updates = Object.keys(req.body).map(key => `${key} = ?`).join(', ');
-    const values = [...Object.values(req.body), req.params.id];
-    const sql = `UPDATE items SET ${updates} WHERE id = ?`;
-    db.run(sql, values, function(err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.redirect('/');
+// Delete an item
+const deleteItem = (req, res) => {
+    const { id } = req.params;
+    db.deleteItem(id, (err) => {
+        if (err) {
+            res.status(500).json({ message: 'Error deleting item' });
+        } else {
+            res.json({ message: 'Item deleted' });
+        }
     });
 };
 
-// Delete item
-exports.deleteItem = (req, res) => {
-    const sql = 'DELETE FROM items WHERE id = ?';
-    db.run(sql, [req.params.id], function(err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.redirect('/');
-    });
+module.exports = {
+    getAllItems,
+    createItem,
+    updateItem,
+    deleteItem
 };
